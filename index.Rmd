@@ -1,0 +1,98 @@
+---
+title: "Interactive Map of the 7 Wonders of the World"
+author: "Pulkit Kumar"
+date: "October 7, 2026"
+output: 
+  html_document:
+    theme: flatly
+    highlight: tango
+    toc: true
+    toc_float: true
+---
+
+## Overview
+
+This interactive map document was created on **October 7, 2026** using **R Markdown** and the **Leaflet** R package.
+
+It showcases the **New 7 Wonders of the World**, featuring interactive markers, popups with location details, Wikipedia links, and multiple tile layer options (OpenStreetMap, Satellite, and CartoDB Light).
+
+## Interactive Leaflet Map
+
+```{r wonders-map, echo=TRUE, message=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+library(leaflet)
+library(dplyr)
+
+# Create dataframe of the 7 Wonders of the World
+wonders <- data.frame(
+  name = c(
+    "Great Wall of China",
+    "Petra",
+    "Christ the Redeemer",
+    "Machu Picchu",
+    "Chichén Itzá",
+    "Colosseum",
+    "Taj Mahal"
+  ),
+  location = c(
+    "Huairou, Beijing, China",
+    "Ma'an, Jordan",
+    "Rio de Janeiro, Brazil",
+    "Cusco Region, Peru",
+    "Yucatán, Mexico",
+    "Rome, Italy",
+    "Agra, Uttar Pradesh, India"
+  ),
+  lat = c(40.431908, 30.328960, -22.951916, -13.163141, 20.684285, 41.890210, 27.175145),
+  lng = c(116.570374, 35.444832, -43.210487, -72.544963, -88.567783, 12.492231, 78.042142),
+  wiki_url = c(
+    "https://en.wikipedia.org/wiki/Great_Wall_of_China",
+    "https://en.wikipedia.org/wiki/Petra",
+    "https://en.wikipedia.org/wiki/Christ_the_Redeemer_(statue)",
+    "https://en.wikipedia.org/wiki/Machu_Picchu",
+    "https://en.wikipedia.org/wiki/Chichen_Itza",
+    "https://en.wikipedia.org/wiki/Colosseum",
+    "https://en.wikipedia.org/wiki/Taj_Mahal"
+  ),
+  category = c("Historical Wall", "Ancient City", "Statue", "Incan Ruins", "Mayan Pyramid", "Amphitheatre", "Mausoleum")
+)
+
+# Build popup HTML content
+wonders <- wonders %>%
+  mutate(
+    popup_content = paste0(
+      "<div style='font-family: Arial, sans-serif; padding: 5px;'>",
+      "<h3 style='margin: 0 0 5px 0; color: #2c3e50;'>", name, "</h3>",
+      "<p style='margin: 0 0 5px 0;'><b>Location:</b> ", location, "</p>",
+      "<p style='margin: 0 0 5px 0;'><b>Category:</b> ", category, "</p>",
+      "<a href='", wiki_url, "' target='_blank' style='color: #2980b9; text-decoration: none; font-weight: bold;'>Learn More on Wikipedia &rarr;</a>",
+      "</div>"
+    )
+  )
+
+# Render Leaflet Map
+leaflet(wonders) %>%
+  addTiles(group = "OpenStreetMap") %>%
+  addProviderTiles(providers$Esri.WorldImagery, group = "Satellite") %>%
+  addProviderTiles(providers$CartoDB.Positron, group = "CartoDB Light") %>%
+  addAwesomeMarkers(
+    lng = ~lng,
+    lat = ~lat,
+    popup = ~popup_content,
+    label = ~name,
+    icon = awesomeIcons(
+      icon = 'star',
+      iconColor = 'white',
+      library = 'fa',
+      markerColor = 'darkblue'
+    )
+  ) %>%
+  addLayersControl(
+    baseGroups = c("OpenStreetMap", "Satellite", "CartoDB Light"),
+    options = layersControlOptions(collapsed = FALSE)
+  ) %>%
+  setView(lng = 15, lat = 20, zoom = 2)
+```
+
+***
+
+*Document rendered automatically with R Markdown & Leaflet.*
